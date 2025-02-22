@@ -7,6 +7,7 @@ plugins {
 android {
     namespace = "dev.tsuyosh.embedphotopickersample"
     compileSdkPreview = "Baklava"
+    compileSdkExtension = 15
 
     defaultConfig {
         applicationId = "dev.tsuyosh.embedphotopickersample"
