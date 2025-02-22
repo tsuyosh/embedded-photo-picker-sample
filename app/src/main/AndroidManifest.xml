@@ -25,4 +25,9 @@
         </activity>
     </application>
 
+    <queries>
+        <intent>
+            <action android:name="com.android.photopicker.core.embedded.EmbeddedService.BIND" />
+        </intent>
+    </queries>
 </manifest>
