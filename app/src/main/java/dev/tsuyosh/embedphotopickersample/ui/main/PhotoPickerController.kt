@@ -10,12 +10,10 @@ import android.widget.photopicker.EmbeddedPhotoPickerProvider
 import android.widget.photopicker.EmbeddedPhotoPickerProviderFactory
 import android.widget.photopicker.EmbeddedPhotoPickerSession
 import androidx.annotation.Px
-import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import timber.log.Timber
 import java.util.concurrent.Executors
 
-@RequiresApi(Build.VERSION_CODES.R)
 @RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 15)
 class PhotoPickerController(
     private val context: Context,

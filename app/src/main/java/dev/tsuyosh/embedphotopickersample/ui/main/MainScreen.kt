@@ -3,7 +3,6 @@ package dev.tsuyosh.embedphotopickersample.ui.main
 import android.os.Build
 import android.os.ext.SdkExtensions
 import android.view.SurfaceView
-import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -43,10 +42,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.weight(1f))
 
         if (isOpened) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && SdkExtensions.getExtensionVersion(
-                    Build.VERSION_CODES.UPSIDE_DOWN_CAKE
-                ) >= 15
-            ) {
+            if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 15) {
                 PhotoPicker(
                     isExpanded = isExpanded,
                     modifier = Modifier
@@ -85,7 +81,6 @@ fun Buttons(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.R)
 @RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 15)
 @Composable
 fun PhotoPicker(

@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "dev.tsuyosh.embedphotopickersample"
-        minSdk = 29
+        minSdk = 30
         targetSdk = 35
         targetSdkPreview = "Baklava"
         versionCode = 1
