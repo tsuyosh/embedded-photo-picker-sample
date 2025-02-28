@@ -1,4 +1,4 @@
-package dev.tsuyosh.embedphotopickersample
+package dev.tsuyosh.embedphotopickersample.ui.main
 
 import android.content.Context
 import android.net.Uri
