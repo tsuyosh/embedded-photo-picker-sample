@@ -26,7 +26,10 @@ import dev.tsuyosh.embedphotopickersample.ui.theme.EmbedPhotoPickerSampleTheme
 import timber.log.Timber
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier) {
+fun MainScreen(
+    onTakeScreenshotClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     var isOpened by remember { mutableStateOf(false) }
     var isExpanded by remember { mutableStateOf(false) }
 
@@ -36,6 +39,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
             isExpanded = isExpanded,
             onOpenCloseButtonClick = { isOpened = !isOpened },
             onExpandCollapseButtonClick = { isExpanded = !isExpanded },
+            onTakeScreenshotClick = onTakeScreenshotClick,
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -65,6 +69,7 @@ fun Buttons(
     isExpanded: Boolean,
     onOpenCloseButtonClick: () -> Unit,
     onExpandCollapseButtonClick: () -> Unit,
+    onTakeScreenshotClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(modifier = modifier.fillMaxWidth()) {
@@ -77,6 +82,11 @@ fun Buttons(
             onClick = onExpandCollapseButtonClick
         ) {
             Text(text = if (isExpanded) "Collapse" else "Expand")
+        }
+        Button(
+            onClick = onTakeScreenshotClick
+        ) {
+            Text(text = "Take Screenshot")
         }
     }
 }
@@ -127,7 +137,8 @@ fun ButtonsPreview() {
             isOpened = isOpened,
             isExpanded = isExpanded,
             onOpenCloseButtonClick = { isOpened = !isOpened },
-            onExpandCollapseButtonClick = { isExpanded = !isExpanded }
+            onExpandCollapseButtonClick = { isExpanded = !isExpanded },
+            onTakeScreenshotClick = {},
         )
     }
 }
