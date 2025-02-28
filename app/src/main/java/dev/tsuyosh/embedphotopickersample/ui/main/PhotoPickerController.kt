@@ -1,6 +1,7 @@
 package dev.tsuyosh.embedphotopickersample.ui.main
 
 import android.content.Context
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
 import android.view.SurfaceView
@@ -27,10 +28,6 @@ class PhotoPickerController(
     private val embeddedPhotoPickerProvider: EmbeddedPhotoPickerProvider =
         EmbeddedPhotoPickerProviderFactory.create(context)
 
-    private val featureInfo: EmbeddedPhotoPickerFeatureInfo =
-        EmbeddedPhotoPickerFeatureInfo.Builder()
-            .build()
-
     private var session: EmbeddedPhotoPickerSession? = null
 
     fun notifySizeChanged(
@@ -49,6 +46,12 @@ class PhotoPickerController(
             Timber.w("hostToken is null")
             return
         }
+        val themeNightMode =
+            context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        val featureInfo = EmbeddedPhotoPickerFeatureInfo.Builder()
+            // The default value is UI_MODE_NIGHT_UNDEFINED, but it doesn't work. So specify the value
+            .setThemeNightMode(themeNightMode)
+            .build()
         val clientExecutor = Executors.newSingleThreadScheduledExecutor()
         embeddedPhotoPickerProvider.openSession(
             hostToken,
