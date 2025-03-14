@@ -7,6 +7,8 @@ import android.os.Environment
 import android.provider.MediaStore
 import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -15,8 +17,16 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.core.view.drawToBitmap
 import dev.tsuyosh.embedphotopickersample.ui.main.MainScreen
 import dev.tsuyosh.embedphotopickersample.ui.theme.EmbedPhotoPickerSampleTheme
+import timber.log.Timber
 
 class MainActivity : ComponentActivity() {
+    private val pickMultipleMedia =
+        registerForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) { uris ->
+            if (uris.isNotEmpty()) {
+                Timber.d("Selected URIs: $uris")
+            }
+        }
+
     private lateinit var composeView: ComposeView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,7 +37,9 @@ class MainActivity : ComponentActivity() {
                     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                         MainScreen(
                             onTakeScreenshotClick = { takeScreenshot() },
-                            modifier = Modifier.padding(innerPadding).fillMaxSize()
+                            modifier = Modifier
+                                .padding(innerPadding)
+                                .fillMaxSize()
                         )
                     }
                 }
@@ -59,5 +71,10 @@ class MainActivity : ComponentActivity() {
         contentValues.clear()
         contentValues.put(MediaStore.MediaColumns.IS_PENDING, 0)
         contentResolver.update(imageUri, contentValues, null, null)
+    }
+
+    private fun openExternalPhotoPicker() {
+        pickMultipleMedia
+            .launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }
 }
