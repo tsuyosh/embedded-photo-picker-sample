@@ -40,6 +40,9 @@ class PhotoPickerController(
             return
         }
 
+        // Maybe it's correct way to get hostToken. But InputTransferToken#getToken() is hidden
+//        val hostToken = surfaceView.rootSurfaceControl.inputTransferToken.token
+
         // It's deprecated method, but there is no other way to open photo picker session
         val hostToken = surfaceView.hostToken
         if (hostToken == null) {
