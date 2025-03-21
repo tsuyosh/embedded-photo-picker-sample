@@ -16,7 +16,7 @@ import timber.log.Timber
 import java.util.concurrent.Executors
 
 @RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 15)
-class PhotoPickerController(
+class EmbeddedPhotoPickerController(
     private val context: Context,
     val surfaceView: SurfaceView,
 ) {
@@ -97,7 +97,7 @@ class PhotoPickerController(
         override fun onSessionOpened(session: EmbeddedPhotoPickerSession) {
             Timber.d("onSessionOpened")
             surfaceView.setChildSurfacePackage(session.surfacePackage)
-            this@PhotoPickerController.session = session
+            this@EmbeddedPhotoPickerController.session = session
         }
 
         override fun onUriPermissionGranted(uris: MutableList<Uri>) {

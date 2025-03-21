@@ -99,26 +99,26 @@ fun PhotoPicker(
     // TODO: Add onPhotoSelected
 ) {
     val context = LocalContext.current
-    val photoPickerController = remember { PhotoPickerController(context, SurfaceView(context)) }
+    val embeddedPhotoPickerController = remember { EmbeddedPhotoPickerController(context, SurfaceView(context)) }
     LaunchedEffect(isExpanded) {
         Timber.d("LaunchedEffect: isExpanded=$isExpanded")
-        photoPickerController.setExpanded(isExpanded)
+        embeddedPhotoPickerController.setExpanded(isExpanded)
     }
 
     AndroidView(
         factory = {
-            photoPickerController.surfaceView
+            embeddedPhotoPickerController.surfaceView
         },
         update = {
         },
         onRelease = {
             Timber.d("onRelease")
-            photoPickerController.release()
+            embeddedPhotoPickerController.release()
         },
         modifier = modifier
             .onSizeChanged { size ->
                 Timber.d("onSizeChanged: size=$size")
-                photoPickerController.notifySizeChanged(
+                embeddedPhotoPickerController.notifySizeChanged(
                     size.width,
                     size.height
                 )
