@@ -6,12 +6,13 @@ plugins {
 
 android {
     namespace = "dev.tsuyosh.embedphotopickersample"
-    compileSdk = 36
+    compileSdk = 35
+    compileSdkExtension = 15
 
     defaultConfig {
         applicationId = "dev.tsuyosh.embedphotopickersample"
         minSdk = 30
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
