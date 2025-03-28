@@ -47,7 +47,7 @@ fun MainScreen(
 
         if (isOpened) {
             if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 15) {
-                PhotoPicker(
+                EmbeddedPhotoPicker(
                     isExpanded = isExpanded,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -93,7 +93,7 @@ fun Buttons(
 
 @RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 15)
 @Composable
-fun PhotoPicker(
+fun EmbeddedPhotoPicker(
     isExpanded: Boolean,
     modifier: Modifier = Modifier,
     // TODO: Add onPhotoSelected
