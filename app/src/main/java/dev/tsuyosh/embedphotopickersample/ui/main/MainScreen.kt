@@ -1,5 +1,6 @@
 package dev.tsuyosh.embedphotopickersample.ui.main
 
+import android.net.Uri
 import android.os.Build
 import android.os.ext.SdkExtensions
 import android.view.SurfaceView
@@ -18,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -97,8 +99,14 @@ fun EmbeddedPhotoPicker(
     isExpanded: Boolean,
     modifier: Modifier = Modifier,
     // TODO: Add onPhotoSelected
+    onPhotoSelected: (List<Uri>) -> Unit = {},
 ) {
+    // TODO: Hold EmbeddedPhotoPicker state outside of this composable to retain the photo picker state
+    // TODO: Create EmbeddedPhotoPickerProvider
+    // TODO: Hold EmbeddedPhotoPickerSession
+
     val context = LocalContext.current
+    // TODO: AndroidView の外部でビュー参照を保持するために remember を使用する代わりに、AndroidView factory ラムダでビューを作成することをおすすめします。
     val embeddedPhotoPickerController = remember { EmbeddedPhotoPickerController(context, SurfaceView(context)) }
     LaunchedEffect(isExpanded) {
         Timber.d("LaunchedEffect: isExpanded=$isExpanded")
@@ -107,19 +115,29 @@ fun EmbeddedPhotoPicker(
 
     AndroidView(
         factory = {
+            Timber.d("factory: isExpanded=$isExpanded")
             embeddedPhotoPickerController.surfaceView
         },
         update = {
             Timber.d("update: isExpanded=$isExpanded")
+            // width and height is not yet decided
+            Timber.d("update: width=${it.width}, height=${it.height}")
 //            embeddedPhotoPickerController.setExpanded(isExpanded)
         },
-        onRelease = {
+        onRelease = { surfaceView ->
             Timber.d("onRelease")
             embeddedPhotoPickerController.release()
+            // TODO: Detach surfaceView from EmbeddedPhotoPickerProvider
+            // SurfaceView#clearChildSurfacePackage() cannot be called in API 35
         },
         modifier = modifier
+            .onPlaced {
+                // onPlaced is called after onSizeChanged
+                Timber.d("onPlaced: size=${it.size}, $it")
+            }
             .onSizeChanged { size ->
                 Timber.d("onSizeChanged: size=$size")
+                // TODO: Open session or notifySizeChanged
                 embeddedPhotoPickerController.notifySizeChanged(
                     size.width,
                     size.height
