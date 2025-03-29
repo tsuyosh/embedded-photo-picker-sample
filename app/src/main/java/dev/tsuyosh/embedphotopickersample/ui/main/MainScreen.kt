@@ -55,7 +55,7 @@ fun MainScreen(
                 )
             } else {
                 Text(
-                    text = "PhotoPicker is not supported yet.",
+                    text = "EmbeddedPhotoPicker is not supported on this device",
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -110,6 +110,8 @@ fun EmbeddedPhotoPicker(
             embeddedPhotoPickerController.surfaceView
         },
         update = {
+            Timber.d("update: isExpanded=$isExpanded")
+//            embeddedPhotoPickerController.setExpanded(isExpanded)
         },
         onRelease = {
             Timber.d("onRelease")
