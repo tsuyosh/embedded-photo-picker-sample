@@ -19,6 +19,7 @@ import java.util.concurrent.Executors
 class EmbeddedPhotoPickerController(
     private val context: Context,
     val surfaceView: SurfaceView,
+    private val onPhotoSelected: (List<Uri>, () -> Unit) -> Unit = { _, _ -> }
 ) {
     init {
         // It's necessary for touch and click events
@@ -86,7 +87,9 @@ class EmbeddedPhotoPickerController(
         override fun onSelectionComplete() {
             Timber.d("onSelectionComplete")
             val uris = selectedPhotoUris
-            session?.requestRevokeUriPermission(uris)
+            onPhotoSelected.invoke(uris) {
+                session?.requestRevokeUriPermission(uris)
+            }
             selectedPhotoUris = emptyList()
         }
 
