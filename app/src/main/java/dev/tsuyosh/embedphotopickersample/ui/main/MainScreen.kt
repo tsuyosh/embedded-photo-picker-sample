@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.ext.SdkExtensions
 import android.view.SurfaceView
 import androidx.annotation.RequiresExtension
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -28,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.onSizeChanged
@@ -136,7 +138,7 @@ fun MessageList(messages: List<MessageUiState>, modifier: Modifier = Modifier) {
 fun ImageMessage(message: MessageUiState, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier
-            .widthIn(max = 300.dp)
+            .widthIn(max = 340.dp)
     ) {
         LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
@@ -149,8 +151,9 @@ fun ImageMessage(message: MessageUiState, modifier: Modifier = Modifier) {
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .width(100.dp)
-                        .height(100.dp)
+                        .width(150.dp)
+                        .height(150.dp)
+                        .background(Color.Gray)
                 )
                 if (index < message.photoUris.lastIndex) {
                     Spacer(modifier = Modifier.width(8.dp))
