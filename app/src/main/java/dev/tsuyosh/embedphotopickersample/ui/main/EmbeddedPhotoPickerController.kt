@@ -12,33 +12,54 @@ import android.widget.photopicker.EmbeddedPhotoPickerProviderFactory
 import android.widget.photopicker.EmbeddedPhotoPickerSession
 import androidx.annotation.Px
 import androidx.annotation.RequiresExtension
+import androidx.core.view.doOnLayout
 import timber.log.Timber
 import java.util.concurrent.Executors
 
 @RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 15)
 class EmbeddedPhotoPickerController(
     private val context: Context,
-    val surfaceView: SurfaceView,
+    private val embeddedPhotoPickerProvider: EmbeddedPhotoPickerProvider =
+        EmbeddedPhotoPickerProviderFactory.create(context),
     private val onPhotoSelected: (List<Uri>, () -> Unit) -> Unit = { _, _ -> }
 ) {
-    init {
-        // It's necessary for touch and click events
-        surfaceView.setZOrderOnTop(true)
-    }
-
-    private val embeddedPhotoPickerProvider: EmbeddedPhotoPickerProvider =
-        EmbeddedPhotoPickerProviderFactory.create(context)
-
+    private var surfaceView: SurfaceView? = null
     private var session: EmbeddedPhotoPickerSession? = null
 
-    fun notifySizeChanged(
-        @Px widthPx: Int,
-        @Px heightPx: Int
-    ) {
-        Timber.d("Opening session")
-        if (session != null) {
-            session?.notifyResized(widthPx, heightPx)
-            return
+    fun notifySizeChanged(@Px widthPx: Int, @Px heightPx: Int) {
+        session?.notifyResized(widthPx, heightPx) ?: {
+            Timber.w("session is null")
+        }
+    }
+
+    fun setExpanded(expanded: Boolean) {
+        session?.notifyPhotoPickerExpanded(expanded) ?: {
+            Timber.w("session is null")
+        }
+    }
+
+    fun notifyVisibility(visible: Boolean) {
+        session?.notifyVisibilityChanged(visible) ?: {
+            Timber.w("session is null")
+        }
+    }
+
+    fun attach(surfaceView: SurfaceView) {
+        if (!openSession(surfaceView)) {
+            // pending
+            surfaceView.doOnLayout {
+                openSession(surfaceView)
+            }
+        }
+    }
+
+    private fun openSession(surfaceView: SurfaceView): Boolean {
+        Timber.d("openSession")
+        val widthPx = surfaceView.width
+        val heightPx = surfaceView.height
+        if (widthPx == 0 || heightPx == 0) {
+            Timber.w("width and height is not set. widthPx=$widthPx, heightPx=$heightPx")
+            return false
         }
 
         // Maybe it's correct way to get hostToken. But InputTransferToken#getToken() is hidden
@@ -48,7 +69,7 @@ class EmbeddedPhotoPickerController(
         val hostToken = surfaceView.hostToken
         if (hostToken == null) {
             Timber.w("hostToken is null")
-            return
+            return false
         }
         val themeNightMode =
             context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
@@ -66,17 +87,13 @@ class EmbeddedPhotoPickerController(
             clientExecutor,
             EmbeddedPhotoPickerClientImpl() // callback
         )
+        this.surfaceView = surfaceView
+        return true
     }
 
-    fun setExpanded(expanded: Boolean) {
-        session?.notifyPhotoPickerExpanded(expanded)
-    }
-
-    fun notifyVisibility(visible: Boolean) {
-        session?.notifyVisibilityChanged(visible)
-    }
-
-    fun release() {
+    fun release(surfaceView: SurfaceView) {
+        // TODO: Detach surfaceView from EmbeddedPhotoPickerProvider
+        // SurfaceView#clearChildSurfacePackage() cannot be called in API 35
         session?.close()
         session = null
     }
@@ -99,7 +116,7 @@ class EmbeddedPhotoPickerController(
 
         override fun onSessionOpened(session: EmbeddedPhotoPickerSession) {
             Timber.d("onSessionOpened")
-            surfaceView.setChildSurfacePackage(session.surfacePackage)
+            surfaceView?.setChildSurfacePackage(session.surfacePackage)
             this@EmbeddedPhotoPickerController.session = session
         }
 
