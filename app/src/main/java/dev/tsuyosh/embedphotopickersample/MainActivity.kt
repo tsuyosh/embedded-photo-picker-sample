@@ -1,31 +1,39 @@
 package dev.tsuyosh.embedphotopickersample
 
-import android.content.ContentValues
-import android.graphics.Bitmap
 import android.os.Bundle
-import android.os.Environment
-import android.provider.MediaStore
+import android.view.SurfaceView
 import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
-import androidx.core.view.drawToBitmap
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.ViewModelInitializer
 import dev.tsuyosh.embedphotopickersample.ui.main.MainScreen
+import dev.tsuyosh.embedphotopickersample.ui.main.MainScreenViewModel
+import dev.tsuyosh.embedphotopickersample.ui.main.SaveImageUseCase
+import dev.tsuyosh.embedphotopickersample.ui.main.TakeScreenShotUseCase
 import dev.tsuyosh.embedphotopickersample.ui.theme.EmbedPhotoPickerSampleTheme
-import timber.log.Timber
 
 class MainActivity : ComponentActivity() {
-    private val pickMultipleMedia =
-        registerForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) { uris ->
-            if (uris.isNotEmpty()) {
-                Timber.d("Selected URIs: $uris")
-            }
+    private val viewModel: MainScreenViewModel by viewModels(
+        factoryProducer = {
+            ViewModelProvider.Factory.from(
+                ViewModelInitializer(
+                    MainScreenViewModel::class,
+                    initializer = {
+                        MainScreenViewModel(
+                            TakeScreenShotUseCase(contentResolver),
+                            SaveImageUseCase(applicationContext)
+                        )
+                    }
+                )
+            )
         }
+    )
 
     private lateinit var composeView: ComposeView
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,7 +44,11 @@ class MainActivity : ComponentActivity() {
                 EmbedPhotoPickerSampleTheme {
                     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                         MainScreen(
-                            onTakeScreenshotClick = { takeScreenshot() },
+                            viewModel = viewModel,
+                            onTakeScreenshotClick = {
+                                val surfaceView = findViewById<SurfaceView>(R.id.embeddedPhotoPickerView)
+                                viewModel.takeScreenShot(surfaceView)
+                            },
                             modifier = Modifier
                                 .padding(innerPadding)
                                 .fillMaxSize()
@@ -46,35 +58,5 @@ class MainActivity : ComponentActivity() {
             }
         }
         setContentView(composeView)
-    }
-
-    private fun takeScreenshot() {
-        val filename = "screenshot_${System.currentTimeMillis()}.png"
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
-            put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
-            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
-            put(MediaStore.MediaColumns.IS_PENDING, 1)
-        }
-
-        val contentResolver = applicationContext.contentResolver
-        val imageUri =
-            contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
-                ?: return
-
-        contentResolver.openOutputStream(imageUri)?.use { os ->
-            composeView.drawToBitmap().compress(Bitmap.CompressFormat.PNG, 100, os)
-            os.flush()
-            true
-        } ?: return
-
-        contentValues.clear()
-        contentValues.put(MediaStore.MediaColumns.IS_PENDING, 0)
-        contentResolver.update(imageUri, contentValues, null, null)
-    }
-
-    private fun openExternalPhotoPicker() {
-        pickMultipleMedia
-            .launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }
 }

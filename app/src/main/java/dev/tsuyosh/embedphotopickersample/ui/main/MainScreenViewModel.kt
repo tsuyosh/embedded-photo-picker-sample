@@ -1,6 +1,7 @@
 package dev.tsuyosh.embedphotopickersample.ui.main
 
 import android.net.Uri
+import android.view.SurfaceView
 import android.view.View
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,9 +13,11 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class MainScreenViewModel(
-    private val takeScreenShotUseCase: TakeScreenShotUseCase
+    private val takeScreenShotUseCase: TakeScreenShotUseCase,
+    private val saveImageUseCase: SaveImageUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(MainScreenUiState())
     val uiState: StateFlow<MainScreenUiState> = _uiState.asStateFlow()
@@ -22,17 +25,41 @@ class MainScreenViewModel(
     private val _uiEvent = MutableSharedFlow<MainScreenUiEvent>()
     val uiEvent: SharedFlow<MainScreenUiEvent?> = _uiEvent.asSharedFlow()
 
-    fun takeScreenShot(targetView: View) {
+    fun takeScreenShot(targetView: SurfaceView) {
         viewModelScope.launch {
             takeScreenShotUseCase.execute(targetView)
             _uiEvent.emit(MainScreenUiEvent.TakeScreenShot)
         }
     }
 
-    fun sendPhotoMessage(photoUris: List<Uri>) {
+    fun sendPhotoMessage(photoUris: List<Uri>, callback: () -> Unit) {
+        Timber.d("sendPhotoMessage: photoUris=$photoUris")
+        viewModelScope.launch {
+            val savedImageUris = photoUris.map { uri ->
+                saveImageUseCase.execute(uri)
+            }
+            Timber.d("sendPhotoMessage: savedImageUris=$savedImageUris")
+            _uiState.update { current ->
+                current.copy(
+                    messages = current.messages + MessageUiState(photoUris = savedImageUris)
+                )
+            }
+            callback.invoke()
+        }
+    }
+
+    fun togglePhotoPicker() {
         _uiState.update { current ->
             current.copy(
-                messages = current.messages + MessageUiState(photoUris = photoUris)
+                isPhotoPickerOpened = !current.isPhotoPickerOpened
+            )
+        }
+    }
+
+    fun togglePhotoPickerExpanded() {
+        _uiState.update { current ->
+            current.copy(
+                isPhotoPickerExpanded = !current.isPhotoPickerExpanded
             )
         }
     }
