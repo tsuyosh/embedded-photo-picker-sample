@@ -56,10 +56,10 @@ class EmbeddedPhotoPickerController(
             // The default value is UI_MODE_NIGHT_UNDEFINED, but it doesn't work. So specify the value
             .setThemeNightMode(themeNightMode)
             .build()
-        val clientExecutor = Executors.newSingleThreadScheduledExecutor()
+        val clientExecutor = Executors.newSingleThreadExecutor()
         embeddedPhotoPickerProvider.openSession(
             hostToken,
-            context.display.displayId,
+            surfaceView.display.displayId,
             widthPx,
             heightPx,
             featureInfo,
